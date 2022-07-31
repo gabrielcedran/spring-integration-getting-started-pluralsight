@@ -4,6 +4,10 @@ import com.pluralsight.demo.model.AttendeeRegistration;
 import com.pluralsight.demo.service.RegistrationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.MessageChannel;
+import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,10 +22,10 @@ import javax.validation.Valid;
 public class RegistrationController {
     private static final Logger LOG = LoggerFactory.getLogger(RegistrationController.class);
 
-    private final RegistrationService registrationService;
+    private MessageChannel registrationRequestChannel;
 
-    public RegistrationController(RegistrationService registrationService) {
-        this.registrationService = registrationService;
+    public RegistrationController(@Qualifier("registrationRequest") MessageChannel registrationRequestChannel) {
+        this.registrationRequestChannel = registrationRequestChannel;
     }
 
     @GetMapping
@@ -36,7 +40,8 @@ public class RegistrationController {
             return "index";
         }
 
-        registrationService.register(registration);
+        Message<AttendeeRegistration> message = MessageBuilder.withPayload(registration).build();
+        registrationRequestChannel.send(message);
 
         return "success";
     }
