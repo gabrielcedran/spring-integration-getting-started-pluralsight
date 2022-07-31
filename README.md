@@ -290,6 +290,34 @@ Its implementation is very similar to the `Direct Channel's`. The only differenc
 TBD
 
 
+#### Pollable Channels
+
+They implement the Polling Consumer pattern. They work by receivers polling messages from the channel and they `may` buffer messages. 
+They are always point-to-point channels. Multiple receivers can call the receive method of a pollable channel but each message will be delivered to only one of the receivers.
+
+##### Queue Channel
+
+This is a simple message channel that stores messages in a queue. By default it uses a linked blocking queue with an unbounded capacity.
+When receive is called on a queue channel, it gets the next message that is waiting in the queue or it blocks until a sender puts a message in the queue (or a timeout occurs)
+
+##### Rendezvouz Channel
+
+It is similar to a queue channel but with a zero-capacity queue. It means that when a sender sends a message to this type of channel, it will block until the receiver receives the message.
+
+When it is the other way around, when the receiver calls the receive method, if there is no message, the receiver will block until it gets a message.
+
+_The anology of two people agreeing to meet somewhere to deliver a package. Whoever gets there first waits for the other._
+
+##### Priority Channel
+
+It is also similar to the queue channel however it is possible to define priority instead of relying on the first in first out approach.
+By default, the priority is set via message header `priority` (:P). But it is also possible to set custom logic to define priority. 
+
+By default queue and priority channel store messages in memory, but it is also possible to make the queues persistent (e.g storing the message in the DB).
+
+
+
+
 ##### Miscellaneous
 
 The application runs on port 8080.
