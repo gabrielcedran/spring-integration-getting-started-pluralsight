@@ -152,10 +152,63 @@ The easiest way to declare a service activator is by annotation the service acti
 @ServiceActivator(inputChannel = "registrationRequest")
 ```
 
+To instantiate via spring configuration:
+
+```
+    @ServiceActivator(inputChannel = "registrationRequest")
+    @Bean
+    public ServiceActivatingHandler ServiceActivatingHandler(RegistrationService service) {
+        return new ServiceActivatingHandler(service, "register");
+    }
+```
 
 
 ### DSL Config
 
+
+### Message Headers
+
+Adding message headers is just a matter of calling the setHeader method from the message builder:
+
+```
+        Message<AttendeeRegistration> message = MessageBuilder
+                .withPayload(registration)
+                .setHeader("dateTime", OffsetDateTime.now())
+                .build();
+```
+
+Usually when a service activator passes on the message to a service method, it unpacks the payload from the message and passes it down:
+
+```
+    @ServiceActivator(inputChannel = "registrationRequest")
+    public void register(AttendeeRegistration registration) {
+        ...
+    }
+```
+
+Two ways of getting the message headers can be seen below - the second should be favoured:
+
+1- Change the argument of the service activator method to receive a message type instead:
+
+```
+    @ServiceActivator(inputChannel = "registrationRequest")
+    public void register(Message<AttendeeRegistration> message) {
+        OffsetDateTime dateTime = (OffsetDateTime) message.getHeaders().get("dateTime");
+        AttendeeRegistration registration = message.getPayload();
+    }
+```
+
+The service activator is smart enough to identify that it shouldn't unpack the message.
+
+*This is the wrong way of getting message headers because the business method shouldn't be aware of messaging system* 
+*Other pieces of code that need to use this service would have to pass a message instead of the business object* )
+
+2- (preferred way) receive the necessary business parameters and annotate them to let spring know how to cope with them:
+
+```
+    @ServiceActivator(inputChannel = "registrationRequest")
+    public void register(@Header("dateTime") OffsetDateTime dateTime, @Payload AttendeeRegistration registration) {
+```
 
 ##### Miscellaneous
 
