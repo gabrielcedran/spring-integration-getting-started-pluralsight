@@ -75,7 +75,9 @@ Controller -> Service
 Controller -> Send Message -> Service Activator -> Service
 
 
-### Channels
+### XML Config
+
+#### Channels
 
 To create channels using xml is pretty straightforward. All that needs to be declared is a channel tag with the channel id:
 
@@ -83,7 +85,9 @@ To create channels using xml is pretty straightforward. All that needs to be dec
 <int:channel id="registrationRequest" />
 ```
 
-### Service Activators
+It is possible to choose which type of message channel you want. If you don't, spring will choose one on its own.
+
+#### Service Activators
 
 To create a service activator is as just easy. It requires 3 basic properties: 
 1- which input channel it will listen on, 2- the bean it will pass the message on upon message receipt (bean name) and 3- the method of the bean that will be invoked.
@@ -97,7 +101,7 @@ To create a service activator is as just easy. It requires 3 basic properties:
 
 Service activator is a simple type of endpoint that calls some business logic whenever it receives a message on the channel that it is connected to.
 
-### Sending messages
+#### Sending messages
 
 In a typical spring integration application there are several message channels - developer-defined ones and the ones that spring registers itself so that it can function.
 
@@ -127,9 +131,33 @@ To send the message, just call the method send of the channel with the message:
 registrationRequestChannel.send(message);
 ```
 
+### Annotations Config
+
+#### Message Channel
+
+Spring offers a number of message channel types. The first step is to determine the correct type for the use case then declare a new bean using the `@bean` annotation in a `@Configuration` class. The default one is the direct channel:
+
+```
+    @Bean
+    public MessageChannel registrationRequest() {
+        return new DirectChannel();
+    } 
+```
+
+#### Service Activator
+
+The easiest way to declare a service activator is by annotation the service activator method with the `@ServiceActivator` annotation and provide the `inputChannel` property:
+
+```
+@ServiceActivator(inputChannel = "registrationRequest")
+```
 
 
-#### Miscellaneous
+
+### DSL Config
+
+
+##### Miscellaneous
 
 The application runs on port 8080.
 
