@@ -235,6 +235,38 @@ The service activator is smart enough to identify that it shouldn't unpack the m
     public void register(@Header("dateTime") OffsetDateTime dateTime, @Payload AttendeeRegistration registration) {
 ```
 
+
+### Message Channels Implementations
+
+Spring integration provides many message channel implementations. There are 6 main ones that is important to have a good handle on (the others are really specialised implementation for specific use cases and have to be analised per case).
+
+All channels implement the MessageChannel interface, which contains 2 methods to send messages.
+
+1. Direct Channel
+
+2. Executor Channel
+
+3. Publish Subscribe Channel
+
+4. Queue Channel
+
+5. Rendezvous Channel
+
+6. Priority Channel
+
+
+The first 3 channels listed above are all Subscribable Channels and the last 3 are pollable channels. 
+
+The distiction between subscribable channels and pollable channels corresponds to two enterprise integration patterns: The Event-Driven Consumer pattern (first 3) and the Polling Consumer pattern (last 3).
+
+To receive messages from a subscribable channel, the Event-Driven consumer subscribes a message handler that will be called by the messaging system whenever a message is sent to the channel (the SubscribableChannel interface has 2 methods: `subscribe` and `unsubscribe`).
+
+To receives messages from a pollable channel, you have to explicitly request the message via the receive method (the PollableChannel interface has 2 `receive` methodos. One with and one without timeout). These methods blocks until a message is available (or the timeout occurs).
+
+*Another way of describing the difference between Subscribable and Pollable channels is by defining them as `Pushing` and `Pulling` respectively.*
+Another difference is that Subscribable Channels do not buffer messages while Pollable `may` buffer.
+
+
 ##### Miscellaneous
 
 The application runs on port 8080.
