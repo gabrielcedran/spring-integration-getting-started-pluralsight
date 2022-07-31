@@ -257,7 +257,7 @@ All channels implement the MessageChannel interface, which contains 2 methods to
 
 The first 3 channels listed above are all Subscribable Channels and the last 3 are pollable channels. 
 
-The distiction between subscribable channels and pollable channels corresponds to two enterprise integration patterns: The Event-Driven Consumer pattern (first 3) and the Polling Consumer pattern (last 3).
+The distiction between subscribable channels and pollable channels correspond to two enterprise integration patterns: The Event-Driven Consumer pattern (first 3) and the Polling Consumer pattern (last 3).
 
 To receive messages from a subscribable channel, the Event-Driven consumer subscribes a message handler that will be called by the messaging system whenever a message is sent to the channel (the SubscribableChannel interface has 2 methods: `subscribe` and `unsubscribe`).
 
@@ -265,6 +265,29 @@ To receives messages from a pollable channel, you have to explicitly request the
 
 *Another way of describing the difference between Subscribable and Pollable channels is by defining them as `Pushing` and `Pulling` respectively.*
 Another difference is that Subscribable Channels do not buffer messages while Pollable `may` buffer.
+
+#### Subscribable Channels
+
+Direct and Executor channels are unicasting message channels / dispatcher and PublishSubscriber channel is a broadcasting message channel.
+This distinction also corresponds to two Enterprise Integration Patterns - Point-to-Point channel and Publish-Subscribe channel. 
+The main different might be obvious but the first two deliver the message to exactly one subscribed message handler, thus point-to-point channel. The other one broadcasts messages that are sent to it to all subscribed message handlers.   
+
+_Notice that it is possible to subscribe multiple message handlers to a point-to-point channel however just one will receive the message. Which handler receives the message depends on how you configure the channel._
+
+##### Direct Channel
+
+It is the simplest point-to-point channel implementation that is based on the event-driven consumer pattern. 
+The implementation of its send method is super straightforward: the only thing it does is to immediately call one of its subscribers in the same thread that the send method was called.  
+
+
+##### Executor Channel
+
+Its implementation is very similar to the `Direct Channel's`. The only difference is that it does not call one of its subscribers (message handlers) directly in the same thread as the send method. It calls the subscriber by creating a task on the executor (the executor can be a thread pool, for instance). It allows for asynchronicity (not block the caller).
+
+
+##### Publish-Subscribe Channel
+
+TBD
 
 
 ##### Miscellaneous
