@@ -5,6 +5,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.integration.channel.DirectChannel;
+import org.springframework.integration.dsl.IntegrationFlow;
+import org.springframework.integration.dsl.IntegrationFlows;
+import org.springframework.integration.dsl.MessageChannels;
 import org.springframework.integration.handler.ServiceActivatingHandler;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.MessageHandler;
@@ -14,13 +17,15 @@ public class GlobomanticsIntegrationConfig {
 
     @Bean
     public MessageChannel registrationRequest() {
-        return new DirectChannel();
+        return MessageChannels.direct("registrationRequest").get();
     }
 
-    @ServiceActivator(inputChannel = "registrationRequest")
     @Bean
-    public ServiceActivatingHandler ServiceActivatingHandler(RegistrationService service) {
-        return new ServiceActivatingHandler(service, "register");
+    public IntegrationFlow integrationFlow(RegistrationService registrationService) {
+        return IntegrationFlows
+                .from("registrationRequest")
+                .handle(registrationService, "register")
+                .get();
     }
 
 }

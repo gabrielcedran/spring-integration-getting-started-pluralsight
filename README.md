@@ -165,6 +165,31 @@ To instantiate via spring configuration:
 
 ### DSL Config
 
+The domain specific language provides a set of builders with a fluent API to configure spring integration flows in a concise and readable way.
+
+The DSL method requires a integration flow to be defined. The integration flow is a special bean that initialises a set of spring integration components and wire them. 
+
+The integration flow builder (IntegrationFlows) provides an array of methods to allow the flows definition. MessageChannels is also a builder.
+
+```
+@Configuration
+public class GlobomanticsIntegrationConfig {
+    @Bean
+    public MessageChannel registrationRequest() {
+        return MessageChannels.direct("registrationRequest").get();
+    }
+
+    @Bean
+    public IntegrationFlow integrationFlow(RegistrationService registrationService) {
+        return IntegrationFlows
+                .from("registrationRequest")
+                .handle(registrationService, "register")
+                .get();
+    }
+}
+```
+
+This method allows you to clearly specify how components are connected to each other. 
 
 ### Message Headers
 
